@@ -1,6 +1,93 @@
 
 (ns html-diff)
 
+;; HOW TO USE
+(comment
+  (ns name-space (:require [html-diff :refer [is-html-eq]])))
+
+(comment
+  (let [html-1 "<same>DIFFERENT</same>"
+        html-2 "<same>different</same>"
+        [diff-1 diff-2] (is-html-eq html-1 html-2)]
+    (is (= diff-1 diff-2)))
+; |START|<same>
+; |DIFF1|e>DIFFERENT</
+; |DIFF2|e>different</
+; |  END|</same>
+; FAIL in () (form-init6197705762988680828.clj:202)
+; expected (= diff-1 diff-2)
+; actual (not (= "DIFFERENT" "different"))
+; false
+  )
+
+(comment
+  (let [html-1 "<div>123<div>"
+        html-2 "<div>123<div>"
+        [text-diff-1 text-diff-2] (is-html-eq html-1 html-2)]
+    (is (= text-diff-1 text-diff-2)))
+; true
+  )
+
+(comment
+  (let [html-1 "abcdefghijklmnopqrstuvwxyzDIFFERENTabcdefghijklmnopqrstuvwxyz"
+        html-2 "abcdefghijklmnopqrstuvwxyzdifferentabcdefghijklmnopqrstuvwxyz"
+        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+    (is (= diff-1 diff-2)))
+; |START|abc ... xyz
+; |DIFF1|zDIF ... ENTa
+; |DIFF2|zdif ... enta
+; |  END|abc ... xyz
+; FAIL in () (form-init1629240743054083851.clj:363)
+; expected (= diff-1 diff-2)
+; actual (not (= "DIF ... ENT" "dif ... ent"))
+; false
+  )
+
+(comment
+  (let [html-1 "abcdefghijklmnopqrstuvwxyz_1_abcdefghijklmnopqrstuvwxyz"
+        html-2 "abcdefghijklmnopqrstuvwxyz_l_abcdefghijklmnopqrstuvwxyz"
+        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+    (is (= diff-1 diff-2)))
+; |START|abc ... yz_
+; |DIFF1|_1_
+; |DIFF2|_l_
+; |  END|_ab ... xyz
+; FAIL in () (form-init1629240743054083851.clj:363)
+; expected (= text-diff-1 text-diff-2)
+; actual (not (= "1" "l"))
+; false
+  )
+
+(comment
+  (let [html-1 "abc	xyz"
+        html-2 "abc  xyz"
+        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+    (is (= diff-1 diff-2)))
+; |START|abc
+; |DIFF1|c\tx
+; |DIFF2|c x
+; |  END|xyz
+; FAIL in () (form-init1629240743054083851.clj:363)
+; expected (= diff-1 diff-2)
+; actual (not (= "\t" " "))
+; false
+  )
+
+(comment
+  (let [html-1 "qwe\r\n_asd"
+        html-2 "qwe\n-asd"
+        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+    (is (= diff-1 diff-2)))
+; |START|qwe
+; |DIFF1|e\r\n_
+; |DIFF2|e\n-a
+; |  END|asd
+; FAIL in () (form-init1629240743054083851.clj:363)
+; expected (= diff-1 diff-2)
+; actual (not (= "\r\n_" "\n-"))
+; false			
+  )
+
 (def SIZE-PARTITION-SHORT 30)
 (def DEFAULT-SANDWICH-SIZE 2)
 (def ANSI-BLACK "\u001b[30m")
