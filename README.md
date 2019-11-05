@@ -1,2 +1,1 @@
-# clojure-html-diff
-Colored HTML diffs for Clojure tests
+﻿# clojure-html-diffColored HTML diffs for Clojure tests## To Testhtml-diff-test> (unit-tests "./test/html-diff-test-data/")
