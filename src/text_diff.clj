@@ -1,19 +1,20 @@
 
 ; HOW TO USE
 ; (ns name-space
-;   (:require [text-diff :refer [is-html-eq]])
+;   (:require [text-diff :refer [are-vars-eq]])
 ;  )
 ;
-; (is-html-eq expected-test-value actual-test-value)
+; (are-vars-eq expected-test-value actual-test-value)
 ;
 ; NB functions are ignored as no way to tell if they are the same
 
-(ns text-diff)
+(ns text-diff
+  (:require [clojure.test :refer :all]))
 
 (comment
   (let [html-1 "<div>123<div>"
         html-2 "<div>123<div>"
-        [text-diff-1 text-diff-2] (is-html-eq html-1 html-2)]
+        [text-diff-1 text-diff-2] (are-vars-eq html-1 html-2)]
     (is (= text-diff-1 text-diff-2)))
 ; true
   )
@@ -21,7 +22,7 @@
 (comment
   (let [html-1 "<same>DIFFERENT</same>"
         html-2 "<same>different</same>"
-        [diff-1 diff-2] (is-html-eq html-1 html-2)]
+        [diff-1 diff-2] (are-vars-eq html-1 html-2)]
     (is (= diff-1 diff-2)))
 ; |START|<same>
 ; |DIFF1|e>DIFFERENT</
@@ -36,7 +37,7 @@
 (comment
   (let [html-1 "abcdefghijklmnopqrstuvwxyzDIFFERENTabcdefghijklmnopqrstuvwxyz"
         html-2 "abcdefghijklmnopqrstuvwxyzdifferentabcdefghijklmnopqrstuvwxyz"
-        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+        [diff-1 diff-2] (are-vars-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
     (is (= diff-1 diff-2)))
 ; |START|abc ... xyz
 ; |DIFF1|zDIF ... ENTa
@@ -51,7 +52,7 @@
 (comment  ; letter L versus number 1
   (let [html-1 "abcdefghijklmnopqrstuvwxyz_1_abcdefghijklmnopqrstuvwxyz"
         html-2 "abcdefghijklmnopqrstuvwxyz_l_abcdefghijklmnopqrstuvwxyz"
-        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+        [diff-1 diff-2] (are-vars-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
     (is (= diff-1 diff-2)))
 ; |START|abc ... yz_
 ; |DIFF1|_1_
@@ -66,7 +67,7 @@
 (comment  ; tab versus spaces
   (let [html-1 "abc	xyz"
         html-2 "abc  xyz"
-        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+        [diff-1 diff-2] (are-vars-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
     (is (= diff-1 diff-2)))
 ; |START|abc
 ; |DIFF1|c\tx
@@ -81,7 +82,7 @@
 (comment
   (let [html-1 "qwe\r\n_asd"
         html-2 "qwe\n-asd"
-        [diff-1 diff-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
+        [diff-1 diff-2] (are-vars-eq html-1 html-2 DEFAULT-DIFF-COLORS 1 3)]
     (is (= diff-1 diff-2)))
 ; |START|qwe
 ; |DIFF1|e\r\n_
@@ -452,7 +453,7 @@
   ; |DIFF2|a2b
   ; |  END|b
   ; ["1" "2"]
-  (is-html-eq "a1b" "a2b")
+  (are-vars-eq "a1b" "a2b")
 
   ; |START| [ { :a 1  :b "2"  :c  [ "a" 1 ...  } :f  { :a 1  :b 2 }  [ "a" 1
   ; |DIFF1| 1234
@@ -461,30 +462,30 @@
   ; ["2" "9"]
   (let [vec-1 [{:a 1 :b "2" :c ["a" 12346 "c"] :d '(123 "x")} :f {:a 1 :b 2} ["a" 12346 "c"] '(123 "x")]
         vec-2 [{:a 1 :b "2" :c ["a" 12346 "c"] :d '(123 "x")} :f {:a 1 :b 2} ["a" 19346 "c"] '(123 "x")]]
-    (is-html-eq vec-1 vec-2))
+    (are-vars-eq vec-1 vec-2))
 
   ; |START| [ { :a "a" } 1  '("2" [1 2 3 {:z 123, :arr [1 "2" 3 {:er 1/
   ; |DIFF1|1/3}]
   ; |DIFF2|1/4}]
   ; |  END|}]}])  ]
   ; ["3" "4"]
-  (is-html-eq [{:a "a"} 1 '("2" [1 2 3 {:z 123 :arr [1 "2" 3 {:er 1/3}]}])]
+  (are-vars-eq [{:a "a"} 1 '("2" [1 2 3 {:z 123 :arr [1 "2" 3 {:er 1/3}]}])]
               [{:a "a"} 1 '("2" [1 2 3 {:z 123 :arr [1 "2" 3 {:er 1/4}]}])]
               {})
 
   ; ["" ""]
   (let [afunc  (defn a-func [a] (+ a a))
         bfunc (defn b-func [b] (+ b b))]
-    (is-html-eq afunc bfunc))
+    (are-vars-eq afunc bfunc))
 
  ; ["" ""]
   (let [afunc  (fn [a] (+ a a))
         bfunc (fn [b] (+ b b))]
-    (is-html-eq afunc bfunc)))
-(defn is-html-eq
-  ([html-1 html-2] (is-html-eq html-1 html-2 DEFAULT-DIFF-COLORS DEFAULT-SANDWICH-SIZE SIZE-PARTITION-SHORT))
-  ([html-1 html-2 char-colors] (is-html-eq html-1 html-2 char-colors DEFAULT-SANDWICH-SIZE SIZE-PARTITION-SHORT))
-  ([html-1 html-2 char-colors sandwich-size] (is-html-eq html-1 html-2 char-colors sandwich-size SIZE-PARTITION-SHORT))
+    (are-vars-eq afunc bfunc)))
+(defn are-vars-eq
+  ([html-1 html-2] (are-vars-eq html-1 html-2 DEFAULT-DIFF-COLORS DEFAULT-SANDWICH-SIZE SIZE-PARTITION-SHORT))
+  ([html-1 html-2 char-colors] (are-vars-eq html-1 html-2 char-colors DEFAULT-SANDWICH-SIZE SIZE-PARTITION-SHORT))
+  ([html-1 html-2 char-colors sandwich-size] (are-vars-eq html-1 html-2 char-colors sandwich-size SIZE-PARTITION-SHORT))
   ([html-1 html-2 char-colors sandwich-size partition-size]
    (let [[color-diff plain-1-diff plain-2-diff] (show-diff html-1 html-2 char-colors sandwich-size partition-size)]
      (if (not (= plain-1-diff plain-2-diff))

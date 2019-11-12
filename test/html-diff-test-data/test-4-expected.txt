@@ -1,4 +1,0 @@
-|START|QQQQ
-|DIFF1|QQ\r\nW
-|DIFF2|QQ\nW
-|  END|\nWWWW
