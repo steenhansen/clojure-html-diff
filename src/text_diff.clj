@@ -1,105 +1,41 @@
 
-; HOW TO USE
-; (ns name-space
-;   (:require [text-diff :refer [are-vars-eq]])
-;  )
+;;;   .length => count
 
-; NB functions are ignored as no way to tell if they are the same
-
-; HOW TO TEST
-; test-text-diff> (do-tests)
-
-(ns text-diff
-  (:require [clojure.test :refer :all])
-  (:require [clojure.string :refer :all])
-)
 
 (comment
-  (let [value-1 "<div>123<div>"
-        value-2 "<div>123<div>"
-        [text-diff-1 text-diff-2] (are-vars-eq value-1 value-2)]
-    (is (= text-diff-1 text-diff-2)))
-; true
+
+  ; How to use
+  (ns my-name-space
+    (:require [clojure.test :refer [is]])
+    (:require [text-diff :refer [are-vars-eq]]))
 
   (let [value-1 "<same>DIFFERENT</same>"
         value-2 "<same>different</same>"
         [diff-1 diff-2] (are-vars-eq value-1 value-2)]
     (is (= diff-1 diff-2)))
-; |START|"<same>"
-; |DIFF1|"e>DIFFERENT</"
-; |DIFF2|"e>different</"
-; |  END|"</same>"
-; expected (= diff-1 diff-2)
-; actual (not (= "DIFFERENT" "different"))
-; false
+      ;
+      ; |START|"<same>"
+      ; |DIFF1|"e>DIFFERENT</"
+      ; |DIFF2|"e>different</"
+      ; |  END|"</same>"
+      ;
+      ; expected (= diff-1 diff-2)
+      ; actual (not (= "DIFFERENT" "different"))
+      ; false
 
-  (let [value-1 "abcdefghijklmnopqrstuvwxyzDIFFERENTabcdefghijklmnopqrstuvwxyz"
-        value-2 "abcdefghijklmnopqrstuvwxyzdifferentabcdefghijklmnopqrstuvwxyz"
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ;|START|"abcdefghijklmnopqrstuvwxyz"
-  ;|DIFF1|"yzDIFFERENTab"
-  ;|DIFF2|"yzdifferentab"
-  ;|  END|"abcdefghijklmnopqrstuvwxyz"
-  ;actual: (not (= "DIFFERENT" "different"))
+  ; Examples
+      ; text-diff-examples> (diff-examples)
 
-  (let [value-1 "abcdefghijklmnopqrstuvwxyz_1_abcdefghijklmnopqrstuvwxyz"     ; letter L versus number 1
-        value-2 "abcdefghijklmnopqrstuvwxyz_l_abcdefghijklmnopqrstuvwxyz"
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ;|START|"abcdefghijklmnopqrstuvwxyz_"
-  ;|DIFF1|"z_1_a"
-  ;|DIFF2|"z_l_a"
-  ;|  END|"_abcdefghijklmnopqrstuvwxyz"
-  ;actual (not (= "1" "l"))
-
-  (let [value-1 "abc	xyz"             ; tab versus spaces
-        value-2 "abc xyz"
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ; |START|"abc"
-  ; |DIFF1|"bc\txy"
-  ; |DIFF2|"bc xy"
-  ; |  END|"xyz"
-  ; actual (not (= "\t" " "))
-
-  (let [value-1 "qwe\r\n_asd"    ;unix versus Windows eol
-        value-2 "qwe\n-asd"
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ; |START|"qwe"
-  ; |DIFF1|"we\r\n_as"
-  ; |DIFF2|"we\n-as"
-  ; |  END|"asd"
-  ; actual (not (= "\r\n_" "\n-"))
-
-  (let [value-1 "123456789"
-        value-2  123406789
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ;|diff1|"123456789" String
-  ;|diff2| 123406789  Long
-  ; actual: (not (= "123456789" 123406789))
-
-  (let [value-1 {:a "a" :b "b" :c "c"}
-        value-2 {:b "b" :c "c" :a "a"}
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ; true
-
-  (let [value-1 [123 "456"]
-        value-2 ["123" 456]
-        [diff-1 diff-2] (are-vars-eq value-1 value-2)]
-    (is (= diff-1 diff-2)))
-  ;|START|[
-  ;|DIFF1|[ 123 "456" ]
-  ;|DIFF2|[ "123" 456 ]
-  ;|  END|]
-  ; actual: (not (= "123 \"456\"" "\"123\" 456"))
+  ; Testing
+      ; test-text-diff> (do-tests)
   )
+
+(ns text-diff
+  (:require [clojure.test :refer [is]]))
 
 (def DEFAULT-PRE-POST-SIZE 2)
 (def DEFAULT-ELLIPSIS-SIZE 30)
+(def ONE-CHAR-QUOTED-STR-SIZE 3)
 
 (def TEXT-N-EOL  "\\\\n")
 (def REAL-ANSI-COLOR  #"\u001b")
@@ -117,23 +53,22 @@
 (def REPL-ERROR-PRINT "REPL-ERROR-PRINT")
 (def NO-REPL-PRINT "NO-REPL-PRINT")
 
-(def ANSI-BLACK "\u001b[30m")
 (def ANSI-RED "\u001b[31m")
 (def ANSI-GREEN "\u001b[32m")
 (def ANSI-YELLOW "\u001b[33m")
 (def ANSI-BLUE "\u001b[34m")
 (def ANSI-MAGENTA "\u001b[35m")
 (def ANSI-CYAN "\u001b[36m")
-(def ANSI-WHITE "\u001b[37m")
 (def ANSI-RESET "\u001b[0m")
 
 (def DEFAULT-CHAR-COLORS
-  (hash-map :ERROR-COLOR ANSI-RED
-            :LEGEND-COLOR ANSI-BLUE
+  (hash-map :ERROR-COLOR ANSI-RED            ; dissimilar text
+            :LEGEND-COLOR ANSI-BLUE          ; start/diff1/diff2/end
             :RESET-COLOR ANSI-RESET
-            :SAME-COLOR ANSI-GREEN
-            :TYPE-COLOR ANSI-YELLOW
-            :WHITESPACE-COLOR ANSI-MAGENTA))
+            :SAME-COLOR ANSI-GREEN           ; similar text
+            :TYPE-COLOR ANSI-YELLOW          ; String Long Map Set
+            :WHITESPACE-COLOR ANSI-MAGENTA)) ; tabs eols
+(def T-NO-ANSI-COLORS {})
 
 (def FUNCTION-REPRESENTATION "A_Function")
 (def NIL-REPRESENTATION "A_Nil")
@@ -159,7 +94,7 @@
 
 (comment
   (get-colors {:RESET-COLOR 42})
-  ; ["" 42 "" ""]
+  ; ["" "" 42 "" "" ""]
   )
 (defn get-colors [char-colors]
   (let [error-col (get char-colors :ERROR-COLOR "")
@@ -167,7 +102,6 @@
         reset-col (get char-colors :RESET-COLOR "")
         same-col (get char-colors :SAME-COLOR "")
         type-col (get char-colors :TYPE-COLOR "")
-
         whitespace-col (get char-colors :WHITESPACE-COLOR "")
         the-colors [error-col legend-col reset-col same-col type-col whitespace-col]]
     the-colors))
@@ -177,9 +111,9 @@
   ; "1\n2\n3"
   )
 (defn n-eoln [padded-result]
-  (let [trimmed-result (trim padded-result)
-        rn-result (replace trimmed-result #"\r\n" "\n")
-        n-result (replace rn-result  #"\r" "\n")]
+  (let [trimmed-result (clojure.string/trim padded-result)
+        rn-result (clojure.string/replace trimmed-result #"\r\n" "\n")
+        n-result (clojure.string/replace rn-result  #"\r" "\n")]
     n-result))
 
 (comment
@@ -213,11 +147,11 @@
   ; "23"
   )
 (defn common-end [str-1 str-2]
-  (let [chars-1 (reverse str-1)
-        chars-2 (reverse str-2)
+  (let [chars-1 (clojure.string/reverse str-1)
+        chars-2 (clojure.string/reverse str-2)
         char-tuples (map vector chars-1 chars-2)
         reversed-end (reduce find-start "" char-tuples)
-        ordered-end (reverse reversed-end)
+        ordered-end (clojure.string/reverse reversed-end)
         ordered-str (apply str ordered-end)]
     (if (= ordered-str STRING-DELIM)
       ""
@@ -227,10 +161,10 @@
   (get-middle "1234567890" 3 5)
   ;"45"
   )
-(defn get-middle [str-text start-length end-pos]
-  (if (= end-pos 0)
+(defn get-middle [str-text start-pos end-pos]
+  (if (or (= end-pos 0) (> start-pos end-pos))
     ""
-    (subs str-text start-length end-pos)))
+    (subs str-text start-pos end-pos)))
 
 (comment
   (plain-difference "abcd123edfg" "abcd987edfg" "abcd" "edfg")
@@ -249,12 +183,20 @@
     middle-tuple))
 
 (comment
-  (plain-prefix "abc" 2)
+  (strip-blanks "  in center ok   ")
+  ; "in center ok"
+  )
+(defn strip-blanks [with-blanks]
+  (let [no-start  (clojure.string/replace with-blanks #"(^ *)" "")
+        no-start-end  (clojure.string/replace no-start #"( *$)" "")]
+    no-start-end))
+
+(comment
+  (plain-diff-prefix "abc" 2)
   ; "bc"
   )
-
-(defn plain-prefix [front-untrimmed num-chars]
-  (let [front-same (trim front-untrimmed)
+(defn plain-diff-prefix [front-blanked num-chars]
+  (let [front-same (strip-blanks front-blanked)
         front-quote-length (.length front-same)]
     (if (> num-chars front-quote-length)
       (let [my-start-quoted (subs front-same 0 front-quote-length)]
@@ -265,24 +207,21 @@
         my-start-quoted))))
 
 (comment
-  (plain-postfix "abc" 2)
+  (plain-diff-postfix "abc" 2)
   ; "ab"
   )
-(defn plain-postfix [back-same num-chars]
-  (let [back-trimmed (trim back-same)
-        front-quote-length (.length back-trimmed)]
-    (if (>  num-chars front-quote-length)
-      (let [my-start-quoted (subs back-trimmed 0 front-quote-length)]
-        my-start-quoted)
-      (let [my-start-quoted (subs back-trimmed 0  num-chars)]   ;;ok
-        my-start-quoted))))
+(defn plain-diff-postfix [back-blanked num-chars]
+  (let [back-same (strip-blanks back-blanked)
+        end-quote-length (.length back-same)]
+    (if (>  num-chars end-quote-length)
+      (let [my-end-quoted (subs back-same 0 end-quote-length)]
+        my-end-quoted)
+      (let [my-end-quoted (subs back-same 0  num-chars)]   ;;ok
+        my-end-quoted))))
 
 (comment
   (shrink-middle "abcdefghijklmnopqrstuvwxyz" 5)
   ; "abcde ... vwxyz"
-
-  (shrink-middle "abcd" 2)
-  ; "abcd"
   )
 (defn shrink-middle [long-html size-partition]
   (let [length-html (.length long-html)
@@ -298,62 +237,54 @@
         short-html))))
 
 (comment
-  (text-matches "1\t7" "1\"7" 2)
-  ; ["1" "\t" "\"" "7"]
-
-  (text-matches "1234567890abcdefghijkl0987654321" "1234567890zyxwvutsrqpon0987654321" 3)
-  ; ["123 ... 890" "abc ... jkl" "zyx ... pon" "098 ... 321"]
-
-  (text-matches "1234abcd0987" "1234zyxw0987" 2)
-  ; ["1234" "abcd" "zyxw" "0987"]
+  (text-matches "1234567890abcdefghijkl0987654321" "1234567890zyxwvutsrqpon0987654321" 4)
+  ; ["1234 ... 7890" "abcd ... ijkl" "zyxw ... qpon" "0987 ... 4321"]
   )
-(defn text-matches [str-value-1 str-value-2 ellipsis-size]
-  (let [no-quotes-1    (replace str-value-1 START-OR-END-QUOTES "")
-        no-quotes-2    (replace str-value-2 START-OR-END-QUOTES "")
+(defn text-matches [str-value-1 str-value-2 prefix-size]
+  (let [no-quotes-1    (clojure.string/replace str-value-1 START-OR-END-QUOTES "")
+        no-quotes-2    (clojure.string/replace str-value-2 START-OR-END-QUOTES "")
         start-same (common-start no-quotes-1 no-quotes-2)
         end-same (common-end no-quotes-1 no-quotes-2)
         [middle-1 middle-2] (plain-difference no-quotes-1 no-quotes-2 start-same end-same)
-        start-short (shrink-middle start-same ellipsis-size)
-        middle-1-short (shrink-middle middle-1 ellipsis-size)
-        middle-2-short (shrink-middle middle-2 ellipsis-size)
-        end-short (shrink-middle end-same  ellipsis-size)
+        start-short (shrink-middle start-same prefix-size)
+        middle-1-short (shrink-middle middle-1 prefix-size)
+        middle-2-short (shrink-middle middle-2 prefix-size)
+        end-short (shrink-middle end-same prefix-size)
         start-middle2-end (vector start-short middle-1-short middle-2-short end-short)]
     start-middle2-end))
 
 (comment
-  (display-rnt-slashes "aa\tbb\r\ncc\rdd\nee" "" "")
-  ; "aa\\tbb\\r\\ncc\\rdd\\nee"
+  (display-rnt-slashes "__\t__\r\n__\r__\n__" "" "")
+  ; "__\\t__\\r\\n__\\r__\\n__"
   )
 (defn display-rnt-slashes [whitespace-str current-color whitespace-col]
   (let [tab-show (str whitespace-col "\\\\t" current-color)
         rn-show (str whitespace-col  "\\\\r\\\\n" current-color)
         r-show (str whitespace-col  "\\\\r" current-color)
         n-show (str whitespace-col  "\\\\n" current-color)
-        no-tabs (replace whitespace-str #"\t" tab-show)
-        no-rns (replace no-tabs #"\r\n" rn-show)
-        no-rs (replace no-rns #"\r" r-show)
-        no-ns (replace no-rs #"\n" n-show)]
+        no-tabs (clojure.string/replace whitespace-str #"\t" tab-show)
+        no-rns (clojure.string/replace no-tabs #"\r\n" rn-show)
+        no-rs (clojure.string/replace no-rns #"\r" r-show)
+        no-ns (clojure.string/replace no-rs #"\n" n-show)]
     no-ns))
 
 (comment
-
-  (println (colored-prefix "ab\tc" 3 {:SAME-COLOR ANSI-MAGENTA  :WHITESPACE-COLOR ANSI-YELLOW}))
-;  b\tc       "b" & "c" in magenta and yellow for tab
+  (println (colored-diff-prefix "ab\tc" 3 DEFAULT-CHAR-COLORS))
+  ;  b\tc   green "b", magenta "\t" and green "c"
   )
-(defn colored-prefix [start-same pre-post-size char-colors]
-  (let [[_error-col _legend-col _reset-coll same-col whitespace-col] (get-colors char-colors)
-        front-sandwich (plain-prefix start-same pre-post-size)
+(defn colored-diff-prefix [start-same pre-post-size char-colors]
+  (let [[_error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
+        front-sandwich (plain-diff-prefix start-same pre-post-size)
         front-sand-show (display-rnt-slashes front-sandwich same-col whitespace-col)]
     front-sand-show))
 
 (comment
-  (println (colored-postfix "a\tbc" 3 {:SAME-COLOR ANSI-RED  :WHITESPACE-COLOR ANSI-CYAN}))
-  ; a\tb    "a" & "b" in red and cyan for tab
+  (println (colored-diff-postfix "a\tbc" 3 DEFAULT-CHAR-COLORS))
+  ; a\tb    green "a", magenta "\t" and green "b"
   )
-
-(defn colored-postfix [end-same pre-post-size char-colors]
-  (let [[_error-col _legend-col _reset-coll same-col whitespace-col] (get-colors char-colors)
-        end-sandwich (plain-postfix end-same pre-post-size)
+(defn colored-diff-postfix [end-same pre-post-size char-colors]
+  (let [[_error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
+        end-sandwich (plain-diff-postfix end-same pre-post-size)
         end-sand-show (display-rnt-slashes end-sandwich same-col whitespace-col)]
     end-sand-show))
 
@@ -362,47 +293,37 @@
   ; "  \"  "
   )
 (defn strip-quotes [quoted-str]
-  (let [trimmed-str (trim quoted-str)
-        no-end-quote (replace trimmed-str END-QUOTE "")
-        no-start-quote (replace no-end-quote START-QUOTE "")]
+  (let [trimmed-str (clojure.string/trim quoted-str)
+        no-end-quote (clojure.string/replace trimmed-str END-QUOTE "")
+        no-start-quote (clojure.string/replace no-end-quote START-QUOTE "")]
     no-start-quote))
 
 (comment
-  (build-pre-post "123" "abc" {} " " "\"")
-; [" 123 " "\"abc\""]
-
-  (build-pre-post "12" "45" {} "" "M")
-  ; ["12M" "45M"]
+  (build-pre-post "123" "789" {} "s" "e")
+  ; ["s123e" "s789e"]
   )
 (defn build-pre-post [start-same end-same char-colors delim-start delim-end]
   (let [start-no-quote (strip-quotes start-same)
         end-no-quote (strip-quotes end-same)
         delim-start-used (if (= "" start-no-quote) "" delim-start)
         delim-end-used (if (= "" end-no-quote) "" delim-end)
-        [_error-col _legend-col _reset-coll same-col whitespace-col] (get-colors char-colors)
+        [_error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
         start-show (str delim-start-used (display-rnt-slashes start-no-quote same-col whitespace-col) delim-end-used)
         end-show (str delim-start-used (display-rnt-slashes end-no-quote same-col whitespace-col) delim-end-used)]
     [start-show end-show]))
 
 (comment
-  (bool-str-int VARIETY-RATIOS-INTEGERS "123" "1234")
-  ; 123
-
-  (bool-str-int VARIETY-BOOLEAN "true" "not-true")
-  ; "true"
-
-
-  (bool-str-int VARIETY-STRING "a-string" "[a-string]")
-  ; "[a-string]"
+  (bool-str-int VARIETY-STRING "abcdefghijklmnopqrstuvwxyz" "abc...xyz")
+  ; "abc...xyz"
+  (bool-str-int VARIETY-BOOLEAN true "tru")
+  ; true
   )
-
 (defn bool-str-int [variety str-value middle-plain]
   (if (= variety VARIETY-RATIOS-INTEGERS)
     (read-string str-value)
     (if (= variety VARIETY-BOOLEAN)
       str-value
       middle-plain)))
-
 
 (defn internal-divider-char  [variety-type]
   (if (or (= variety-type VARIETY-STRING)
@@ -412,8 +333,6 @@
     ""
     " "))
 
-
-
 (defn start-end-delimiter [variety-type]
   (if (= variety-type VARIETY-STRING)
     [STRING-DELIM STRING-DELIM]
@@ -422,34 +341,113 @@
       ["" ""])))
 
 (comment
-  (char-difference "1\t7" "1\"7" 1 2  {:SAME-COLOR ANSI-YELLOW} true true)
-  ; ["\"1\"" "\"1\\t7\"" "\"1\"7\"" "\"7\"" "\t" "\""]
-
-  (char-difference "aaaXbbb" "aaaYbbb" 1 2 {} true true)
-  ; ["\"aaa\"" "\"aXb\"" "\"aYb\"" "\"bbb\"" "X" "Y"]
+  (special-case-str VARIETY-STRING "a" "a" "\"a\"" "\"aa\"")
+  ; true
   )
+(defn special-case-str [vars-variety start-same end-same str-value-1 str-value-2]
+  (if (= vars-variety VARIETY-STRING)
+    (if (= start-same end-same)
+      (if (= (count start-same) 1)
+        (if (or (= (count str-value-1) ONE-CHAR-QUOTED-STR-SIZE) (= (count str-value-2) ONE-CHAR-QUOTED-STR-SIZE))
+          true
+          false)
+        false)
+      false)
+    false))
 
-(defn char-difference  [str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety]
+(comment
+  (special-case-int VARIETY-RATIOS-INTEGERS "1" "1" "1" "11")
+  ; true
+  )
+(defn special-case-int [vars-variety start-same end-same str-value-1 str-value-2]
+  (if (= vars-variety VARIETY-RATIOS-INTEGERS)
+    (if (= start-same end-same)
+      (if (= (count start-same) 1)
+        (if (or (= (count str-value-1) 1) (= (count str-value-2) 1))
+          true
+          false)
+        false)
+      false)
+    false))
+
+(comment
+  (color-differences "123" "987" 2 30 {} VARIETY-STRING)
+  ; ["\"123\"" "\"987\"" "" ""]
+  )
+(defn color-differences [str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety]
   (let [[start-same middle-1-plain middle-2-plain end-same] (text-matches str-value-1 str-value-2 ellipsis-size)
         [delim-start delim-end] (start-end-delimiter vars-variety)
         internal-space (internal-divider-char vars-variety)
-        [error-col _legend-col _reset-coll same-col whitespace-col] (get-colors char-colors)
-        front-sand-show (colored-prefix start-same pre-post-size char-colors)
-        end-sand-show (colored-postfix end-same pre-post-size char-colors)
+        [error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
+        front-sand-show (colored-diff-prefix start-same pre-post-size char-colors)
+        end-sand-show (colored-diff-postfix end-same pre-post-size char-colors)
         middle-1-show (display-rnt-slashes middle-1-plain error-col whitespace-col)
         middle-2-show (display-rnt-slashes middle-2-plain error-col whitespace-col)
-        extra-middle-1  (str same-col delim-start front-sand-show internal-space error-col middle-1-show internal-space same-col end-sand-show  delim-end)
-        extra-middle-2  (str same-col delim-start front-sand-show internal-space error-col middle-2-show internal-space same-col end-sand-show  delim-end)
+        extra-middle-1  (str same-col delim-start front-sand-show internal-space error-col
+                             middle-1-show internal-space same-col end-sand-show delim-end)
+        extra-middle-2  (str same-col delim-start front-sand-show internal-space error-col
+                             middle-2-show internal-space same-col end-sand-show delim-end)
         [start-show str-end-show] (build-pre-post start-same end-same char-colors delim-start delim-end)
+        color-diffs [extra-middle-1 extra-middle-2 start-show str-end-show]]
+    color-diffs))
+
+(comment
+  (single-diff-str "\"a\"" "\"aa\"" 2 30 {} VARIETY-STRING)
+  ;["\"a\"" "\"a\"" "\"aa\"" "" "a" "aa"]
+  )
+(defn single-diff-str [str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety]
+  (let [[error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
+        [extra-middle-1 extra-middle-2 start-show _str-end-show] (color-differences str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)
+        str-1-escaped (display-rnt-slashes str-value-1 error-col whitespace-col)
+        str-2-escaped (display-rnt-slashes str-value-2 error-col whitespace-col)
+        no-quotes-1 (clojure.string/replace str-value-1 #"\"" "")
+        no-quotes-2 (clojure.string/replace str-value-2 #"\"" "")]
+    (if (= 3 (count str-value-1))
+      (vector start-show str-1-escaped    extra-middle-2 "" no-quotes-1 no-quotes-2)
+      (vector start-show extra-middle-1 str-2-escaped    "" no-quotes-1 no-quotes-2))))
+
+(comment
+  (single-diff-int "77" "7" 2 30 {} VARIETY-RATIOS-INTEGERS)
+  ;["7" "77" "7" "" 77 7]
+  )
+(defn single-diff-int [str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety]
+  (let [[error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
+        [extra-middle-1 extra-middle-2 start-show _str-end-show] (color-differences str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)
+        no-quotes-1 (Integer/parseInt str-value-1)
+        no-quotes-2 (Integer/parseInt str-value-2)]
+    (if (= 1 (count str-value-1))
+      (vector start-show str-value-1    extra-middle-2 ""  no-quotes-1 no-quotes-2)
+      (vector start-show extra-middle-1 str-value-2    ""  no-quotes-1 no-quotes-2))))
+
+(comment
+  (normal-difference "abcd" "axyd" 2 30 {} VARIETY-STRING)
+ ;["\"a\"" "\"abcd\"" "\"axyd\"" "\"d\"" "bc" "xy"]
+  )
+(defn normal-difference [str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety]
+  (let [[_start-same middle-1-plain middle-2-plain _end-same] (text-matches str-value-1 str-value-2 ellipsis-size)
+        [error-col _legend-col _reset-coll same-col _type-col whitespace-col] (get-colors char-colors)
+        [extra-middle-1 extra-middle-2 start-show str-end-show] (color-differences str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)
         end-show (if (= vars-variety VARIETY-BOOLEAN) "" str-end-show)
-        middle-11-plain (bool-str-int vars-variety str-value-1 middle-1-plain)
-        middle-22-plain (bool-str-int vars-variety str-value-2 middle-2-plain)
-        char-all (vector start-show extra-middle-1 extra-middle-2 end-show middle-11-plain middle-22-plain)]
+        middle-1-short (bool-str-int vars-variety str-value-1 middle-1-plain)
+        middle-2-short (bool-str-int vars-variety str-value-2 middle-2-plain)
+        char-all (vector start-show extra-middle-1 extra-middle-2 end-show middle-1-short middle-2-short)]
     char-all))
 
 (comment
+  (char-difference "aaaXbbb" "aaaYbbb" 1 2 {} true)
+  ; ["aaa" "a X b" "a Y b" "bbb" "X" "Y"]
+  )
+(defn char-difference [str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety]
+  (let [[start-same middle-1-plain middle-2-plain end-same] (text-matches str-value-1 str-value-2 ellipsis-size)]
+    (if (special-case-str vars-variety start-same end-same str-value-1 str-value-2)
+      (single-diff-str str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)
+      (if (special-case-int vars-variety start-same end-same str-value-1 str-value-2)
+        (single-diff-int str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)
+        (normal-difference str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)))))
+
+(comment
   (colored-differences "abc" "def" "|START|abc" "|DIFF1|bcXde" "|DIFF2|bcYde" "|  END|def" "X" "Y")
-  ; ["|START|abc|DIFF1|bcXde|DIFF2|bcYde|  END|def" "X" "Y"]
+  ; ["X" "Y" "|START|abc|DIFF1|bcXde|DIFF2|bcYde|  END|def"]
   )
 (defn colored-differences [start-show end-show front-line middle-1-line middle-2-line back-line middle-1-plain middle-2-plain]
   (let  [front-empty (= 0 (.length start-show))
@@ -462,32 +460,12 @@
           [middle-1-plain middle-2-plain (str front-line middle-1-line middle-2-line)]
           [middle-1-plain middle-2-plain (str front-line middle-1-line middle-2-line back-line)])))))
 
-
 (comment
-    (string-to-str "string")
+  (string-to-str "string")
   ; "\"string\" "
   )
 (defn string-to-str [a-string]
   (str STRING-DELIM a-string STRING-DELIM " "))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 (declare variable-to-str)
 
@@ -496,7 +474,7 @@
   ; "A_Function"
   )
 (defn function-to-str [a-function]
-  (str FUNCTION-REPRESENTATION))
+  (str FUNCTION-REPRESENTATION))            ; we just acknowledge functions, we cannot tell values
 
 (comment
   (vector-to-str [1 "two" {:three '(4 ["5"])}])
@@ -516,17 +494,14 @@
     (str " {" map-members "} ")))
 
 (comment
-
-  (println (str "xxx" #{7 9} "yyy"))
-
   (set-to-str #{1 7 3})
   ;"  { :a 1  :b  { :two  '(4 [\"5\"]) }  :c \"three\" } "
   )
 (defn set-to-str [a-set]
   (let [set-sorted (sort a-set)
         set-str (str set-sorted)
-        no-start-list (replace set-str #"\(" "")
-        no-end-list (replace no-start-list #"\)" "")]
+        no-start-list (clojure.string/replace set-str #"\(" "")
+        no-end-list (clojure.string/replace no-start-list #"\)" "")]
     (str " #{" no-end-list "} ")))
 
 (comment
@@ -537,8 +512,8 @@
   (str " '" a-list " "))
 
 (comment
-  (entry-to-str (first {:a "aa"}))
-  ; " :a \"aa\" "
+  (entry-to-str (first {:a "bc"}))
+  ; " :a \"bc\" "
   )
 (defn entry-to-str [an-entry]
   (if (string? (val an-entry))
@@ -548,11 +523,7 @@
 (comment
   (string-to-str "17")
   ; "\"17\""
-
-  (string-to-str "Steel's")
-  ; " \"Steel's\" "
   )
-
 (defn boolean-to-str [a-boolean]
   (if a-boolean
     "true"
@@ -573,17 +544,9 @@
   (str NIL-REPRESENTATION " "))
 
 (comment
-  (let [afunc (defn a-func [a] (+ a a))]
-    (is-a-function? a-func))
-  ; true
-
   (let [bfunc (fn [b] (+ b b))]
     (is-a-function? bfunc))
   ; true
-
-  (let [not-func "not a function"]
-    (is-a-function? not-func))
-  ;false
   )
 (defn is-a-function? [maybe-func]
   (if (string? maybe-func)
@@ -597,14 +560,8 @@
         (catch Exception e false)))))
 
 (comment
-  (variable-to-str "" [{:a 1
-                        :b "2"
-                        :c ["a" 12346 "12"]
-                        :d '(123 "x")}
-                       :f {:a 1 :b "2"}
-                       ["a" 12346 "c"]
-                       '(123 "x")])
-  ; " [ { :a 1  :b \"2\"  :c  [ \"a\" 12346  \"12\"  ] :d  '(123 \"x\") } :f  { :a 1  :b \"2\" }  [ \"a\" 12346  \"c\"  ] '(123 \"x\")  ]"
+  (variable-to-str "_start_" {:a [1 "j" 3]})
+    ;"_start_ { :a  [1 \"j\" 3  ]} "
   )
 (defn variable-to-str [accum-str the-variable]
   (if (map-entry? the-variable)
@@ -663,37 +620,24 @@
                       VARIETY-OTHER)))))))))))
 
 (comment
-
-  (similar-type-diff "123456789" "123456788" {} VARIETY-STRING  1 3)
-; ["|START|\"123 ... 678\"\n|DIFF1|\"89\"\n|DIFF2|\"88\"" "9" "8"]
-
-
-  (similar-type-diff "123456+a+567890" "123456+b+567890"  {} VARIETY-STRING  1 1)
-; ["|START|\"1 ... +\"\n|DIFF1|\"+a+\"\n|DIFF2|\"+b+\"\n|  END|\"+ ... 0\"" "a" "b"]
-
-
-  (similar-type-diff "123456+a+567890" "123456+b+567890"  {} VARIETY-STRING  1 2)
-; ["|START|\"12 ... 6+\"\n|DIFF1|\"+a+\"\n|DIFF2|\"+b+\"\n|  END|\"+5 ... 90\"" "a" "b"]
-
   (similar-type-diff "123456+a+567890" "123456+b+567890"  {} VARIETY-STRING  1 3)
-; ["|START|\"123 ... 56+\"\n|DIFF1|\"+a+\"\n|DIFF2|\"+b+\"\n|  END|\"+56 ... 890\"" "a" "b"]
+  ;["a" "b" "\n|START|\"123 ... 56+\"\n|DIFF1|\"+a+\"\n|DIFF2|\"+b+\"\n|  END|\"+56 ... 890\""]
   )
-
-(defn similar-type-diff [value-1 value-2   char-colors vars-variety pre-post-size ellipsis-size]
-  (let  [str-value-1  (trim (var-to-str value-1))
-         str-value-2  (trim (var-to-str value-2))]
+(defn similar-type-diff [value-1 value-2 char-colors vars-variety pre-post-size ellipsis-size]
+  (let  [str-value-1  (clojure.string/trim (var-to-str value-1))
+         str-value-2  (clojure.string/trim (var-to-str value-2))]
     (if (= str-value-1 str-value-2)
       ["" "" ""]
       (let [[start-show middle-1-show middle-2-show end-show middle-1-plain middle-2-plain]
-            (char-difference str-value-1 str-value-2 pre-post-size ellipsis-size char-colors  vars-variety)
-            [error-col reset-col legend-col same-col] (get-colors char-colors)
+            (char-difference str-value-1 str-value-2 pre-post-size ellipsis-size char-colors vars-variety)
+            [error-col legend-col reset-col same-col] (get-colors char-colors)
             middle-1-color (str error-col middle-1-show reset-col)
             middle-2-color (str error-col middle-2-show reset-col)
             middle-1-bool (str error-col middle-1-plain reset-col)
             middle-2-bool (str error-col middle-2-plain reset-col)
             new-middle-1 (if (= vars-variety VARIETY-BOOLEAN) middle-1-bool middle-1-color)
             new-middle-2 (if (= vars-variety VARIETY-BOOLEAN) middle-2-bool middle-2-color)
-            front-line      (str legend-col "|START|" same-col start-show reset-col)
+            front-line    (str legend-col "\n|START|" same-col start-show reset-col)
             middle-1-line (str legend-col "\n|DIFF1|" new-middle-1)
             middle-2-line (str legend-col "\n|DIFF2|" new-middle-2)
             back-line     (str legend-col "\n|  END|" same-col end-show  reset-col)
@@ -701,6 +645,10 @@
                                                 back-line middle-1-plain middle-2-plain)]
         colored-output))))
 
+(comment
+  (prefix-duplicate-sizes 10 1)
+  ; [10 10]
+  )
 (defn prefix-duplicate-sizes [prefix-size duplicate-size]
   (if (> prefix-size duplicate-size)
     [prefix-size prefix-size]
@@ -714,25 +662,18 @@
   (if (nil? a-var)
     NIL-TYPE-STR
     (let [long-type (str (type a-var))
-;        dot-type (re-find #"\.[^\.]*$" long-type)
           dot-type (re-find END-DOT-TYPE long-type)
           short-type (subs dot-type 1)]
       short-type)))
 
 (comment
-
-  (conflicting-type-diff "1" [1] {})
-  ; ["\n|DIFF1|\"1\"\n|DIFF2|\"2\" " " \"1\" " " \"2\" "]
-
-
   (conflicting-type-diff "1" 1 {})
-  ; ["\n|DIFF1|\"1\"\n|DIFF2|\"2\" " " \"1\" " " \"2\" "]
+  ;["1" 1 "\n|diff1|\"1\" String\n|diff2| 1  Long"]
   )
-
 (defn conflicting-type-diff [value-1 value-2 char-colors]
   (let [delim-1 (if (string? value-1) STRING-DELIM " ")
         delim-2 (if (string? value-2) STRING-DELIM " ")
-        [error-col reset-col legend-col _same-col type-col] (get-colors char-colors)
+        [error-col legend-col reset-col _same-col type-col] (get-colors char-colors)
         short-type-1 (short-type value-1)
         short-type-2 (short-type value-2)
         diff-1 (str legend-col "\n|diff1|" error-col delim-1 value-1 delim-1 " " type-col short-type-1 reset-col)
@@ -740,58 +681,9 @@
     [value-1 value-2 (str diff-1 diff-2)]))
 
 (comment
-
-  (pre-duplicate-post "1" "2" 1 3 {})
-  ; ["\n|DIFF1|\"1\"\n|DIFF2|\"2\" " " \"1\" " " \"2\" "]
-
-  (pre-duplicate-post 1 2 1 3 {})
-  ; ["\n|DIFF1|1 \n|DIFF2| 2 " 1 2]
-
-  (pre-duplicate-post "" "")
-  ; ["" "" ""]
-
-  (pre-duplicate-post "abcXdef" "abcYdef" 2 3 {})
-  ; ["|START|\"abc\"\n|DIFF1|\"bcXde\"\n|DIFF2|\"bcYde\"\n|  END|\"def\"" "X" "Y"]
-
   (pre-duplicate-post "abcdefghijXklmnopqrst" "abcdefghijYklmnopqrst" 1 3 {})
-  ;"|START|\"abc ... hij\"\n|DIFF1|\"jXk\"\n|DIFF2|\"jYk\"\n|  END|\"klm ... rst\""  "X" "Y"]
-
-  (pre-duplicate-post "abcdefghijXklmnopqrst" "abcdefghijYklmnopqrst" 2 3 {})
-; ["|START|\"abc ... hij\"\n|DIFF1|\"ijXkl\"\n|DIFF2|\"ijYkl\"\n|  END|\"klm ... rst\"" "X" "Y"]
-
-  (pre-duplicate-post 123456789 987654321 2 3 {})
-; ["\n|DIFF1| 123 ... 789 \n|DIFF2| 987 ... 321 "  123 987]
-
-  (pre-duplicate-post "123456789" "987654321" 2 3 {})
-; ["\n|DIFF1|\"123 ... 789\"\n|DIFF2|\"987 ... 321\""  "123 ... 789"  "987 ... 321"]
-
-  (pre-duplicate-post "1234a6789" "1234b6789" 2 3 {})
-; ["|START|\"1234\"\n|DIFF1|\"34a67\"\n|DIFF2|\"34b67\"\n|  END|\"6789\"" "a" "b"]
-
-  (pre-duplicate-post "abcdefghijXklmnopqrst" "abcdefghijYklmnopqrst" 1 2 {})
-;  ["|START|\"ab ... ij\"\n|DIFF1|\"jXk\"\n|DIFF2|\"jYk\"\n|  END|\"kl ... st\""  "X" "Y"]
-
-  (let [vec-1 [{:a 1 :b "2" :c ["a" 12346 "c"] :d '(123 "x")} :f {:a 1 :b 2} ["a" 12346 "c"] '(123 "x")]
-        vec-2 [{:a 1 :b "2" :c ["a" 12346 "c"] :d '(123 "x")} :f {:a 1 :b 2} ["a" 12346 "c"] '(123 "x")]]
-    (pre-duplicate-post vec-1 vec-2 1 2 {}))
- ; ["" "" ""]
-
-  (let [vec-1 [{:a 1 :b "2" :c ["a" 12346 "c"] :d '(123 "x")} :f {:a 1 :b 2} ["R" 12346 "c"] '(123 "x")]
-        vec-2 [{:a 1 :b "2" :c ["a" 12346 "c"] :d '(123 "x")} :f {:a 1 :b 2} ["R" 12946 "c"] '(123 "x")]]
-    (pre-duplicate-post vec-1 vec-2 1 7 {}))
-; ["|START| [ { :a  ... [\"R\" 12 \n|DIFF1| 234 \n|DIFF2| 294 \n|  END| 46 \"c\"  ... \"x\")  ] " "3" "9"]
-
-
-
-
-
-;;;; fix above Q*bert
-
-
-  (pre-duplicate-post "abcdef" "abcXYZ" 1 3 {})
-  ;["def" "XYZ" "|START|\"abc\n|DIFF1|\"cdef\"\n|DIFF2|\"cXYZ\"\n|  END|\""]
+  ;["X" "Y" "\n|START|\"abc ... hij\"\n|DIFF1|\"jXk\"\n|DIFF2|\"jYk\"\n|  END|\"klm ... rst\""]
   )
-
 (defn pre-duplicate-post
   ([value-1 value-2]
    (pre-duplicate-post value-1 value-2  DEFAULT-PRE-POST-SIZE DEFAULT-ELLIPSIS-SIZE DEFAULT-CHAR-COLORS))
@@ -804,80 +696,32 @@
          variety-1 (var-variety value-1)
          variety-2 (var-variety value-2)]
      (if (= variety-1 variety-2)
-       (similar-type-diff     value-1 value-2 char-colors variety-1 pre-post-size ellipsis-size)
+       (similar-type-diff     value-1 value-2 char-colors variety-1 prefix-size duplicate-size)
        (conflicting-type-diff value-1 value-2 char-colors)))))
 
 (comment
-
-  (let [colors-only (are-vars-eq "1\t7" "1\"7")])
+  (let [[_ _ _ _ _] (are-vars-eq "1\t7" "1\"7")])
   ;|START|"1"
   ;|DIFF1|"1\t7"
   ;|DIFF2|"1"7"
   ;|  END|"7"
 
-  (let [colors-only (are-vars-eq "123456789" 123455789)])
+  (let [_ (are-vars-eq "123456789" 123455789)])
   ;|diff1|"123456789" String
   ;|diff2| 123455789  Long
 
-  (let [colors-only (are-vars-eq "1234567891111111111"
-                                 "1234567881111111111")])
-  ;|START|"12345678"
-  ;|DIFF1|"78911"
-  ;|DIFF2|"78811"
-  ;|  END|"1111111111"
-
-  (let [colors-only (are-vars-eq "a1b" "a2b")])
-  ;|START|"a"
-  ;|DIFF1|"a1b"
-  ;|DIFF2|"a2b"
-  ;|  END|"b"
-
-  (let [colors-only (are-vars-eq [{:d 1
-                                   :c "2"
-                                   :b ["a" 12346 "c"]
-                                   :a '(123 "x")}
-                                  :j {:a 1 :b 2} ["a" 12346 "c"] '(123 "x")]
-                                 [{:a '(123 "x")
-                                   :b ["a" 12346 "c"]
-                                   :c "2"
-                                   :d 1}
-                                  :j {:a 1 :b 2} ["a" 19346 "c"] '(123 "x")])])
-  ;|START|[ { :a  '(123 "x")  :b  ["a"  ... 1 } :j  { :a 1  :b 2 }  ["a" 1
-  ;|DIFF1| 1 2 34
-  ;|DIFF2| 1 9 34
-  ;|  END|346 "c"  ] '(123 "x")  ]
-
-
-  (let [colors-only (are-vars-eq  [123 "456"]  ["123" 456])])
-  ;|START|[
-  ;|DIFF1|[ 123 "456" ]
-  ;|DIFF2|[ "123" 456 ]
-  ;|  END|]
-
-  (let [colors-only (are-vars-eq  [123]  ["123"])])
-  ;|START|[
-  ;|DIFF1|[ 123 ]
-  ;|DIFF2|[ "123" ]
-  ;|  END|]
-
-  (let [colors-only (are-vars-eq 5 6)])
-  ;|DIFF1|5
-  ;|DIFF2|6
-
-  (let [colors-only (are-vars-eq [{:a "a"} 1 '("2" [1 2 3 {:z 123 :arr [1 "2" 3 {:er 1/3}]}])]
-                                 [{:a "a"} 1 '("2" [1 2 3 {:z 123 :arr [1 "2" 3 {:er 1/4}]}])])])
-  ;|START| [ { :a "a" } 1  '("2" [1 2 3 {:z 123, :arr [1 "2" 3 {:er 1/
-  ;|DIFF1| 1/3}]
-  ;|DIFF2| 1/4}]
-  ;|  END| }]}])  ]
-
-  (are-vars-eq (defn a-func [a] (+ a a)) (defn b-func [b] (+ b b)))
- ; ["" "" "" "" ""]
-
-  (are-vars-eq (fn [a] (+ a a)) (fn [b] (+ b b)))
-  ; ["" "" "" "" ""]
+  (are-vars-eq ".X." ".Y.")
+  ;|START|"."
+  ;|DIFF1|".X."
+  ;|DIFF2|".Y."
+  ;|  END|"."
+  ;["X"
+  ; "Y"
+  ; "\\u001b[34m\\n|START|\\u001b[32m\".\"\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\".\\u001b[31mX\\u001b[32m.\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\".\\u001b[31mY\\u001b[32m.\"\\u001b[0m\\u001b[34m\\n|  END|\\u001b[32m\".\"\\u001b[0m"
+  ; "\\n|START|\".\"\\n|DIFF1|\".X.\"\\n|DIFF2|\".Y.\"\\n|  END|\".\""
+  ; "[34m\n|START|[32m\".\"[0m[34m\n|DIFF1|[31m[32m\".[31mX[32m.\"[0m[34m\n|DIFF2|[31m[32m\".[31mY[32m.\"[0m[34m\n|  END|[32m\".\"[0m"
+  ;]
   )
-
 (defn are-vars-eq
   ([value-1 value-2]
    (are-vars-eq value-1 value-2 REPL-ERROR-PRINT DEFAULT-PRE-POST-SIZE DEFAULT-ELLIPSIS-SIZE DEFAULT-CHAR-COLORS))
@@ -890,9 +734,9 @@
   ([value-1 value-2 repl-print pre-post-size ellipsis-size char-colors]
    (let [print-errors? (not (= repl-print NO-REPL-PRINT))
          [plain-1-diff plain-2-diff color-diff] (pre-duplicate-post value-1 value-2 pre-post-size ellipsis-size char-colors)
-         no-eols-mess (replace color-diff #"\n" TEXT-N-EOL)
-         no-escape-mess (replace no-eols-mess REAL-ANSI-COLOR TEXT-ANSI-COLOR)
-         no-ansi-mess (replace no-escape-mess MATCH-ANSI-COLOR "")
+         no-eols-mess (clojure.string/replace color-diff #"\n" TEXT-N-EOL)
+         no-escape-mess (clojure.string/replace no-eols-mess REAL-ANSI-COLOR TEXT-ANSI-COLOR)
+         no-ansi-mess (clojure.string/replace no-escape-mess MATCH-ANSI-COLOR "")
          values-not-equal? (not (= value-1 value-2))]
      (if (and print-errors? values-not-equal?)
        (println color-diff))

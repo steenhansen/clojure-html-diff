@@ -1,4 +1,4 @@
-|START|<html>\n    <head>\n        <tit ... crape_time speed_bad">98765432
-|DIFF1|32lab
-|DIFF2|321ab
-|  END|abc</div>\n                <div ... ></div>\n\n\n    </body>\n\n</html>
+|START|"<html>\n    <head>\n        <tit ... crape_time speed_bad">98765432"
+|DIFF1|"432labc"
+|DIFF2|"4321abc"
+|  END|"abc</div>\n                <div ... ></div>\n\n\n    </body>\n\n</html>"
