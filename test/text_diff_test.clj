@@ -77,7 +77,7 @@
       (is (= (common-end "123" "423")
              "23"))
 
-      (is (= (plain-difference "abcd123edfg" "abcd987edfg" "abcd" "edfg")
+      (is (= (plain-difference "123edfg" "987edfg" "edfg")
              ["123" "987"]))
 
       (is (= (shrink-middle "abcd" 2)
@@ -214,9 +214,9 @@
   (let [va "11"
         vb "1"
         c-mess
-        "\\u001b[34m\\n|START|\\u001b[32m\"1\"\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\"1\\u001b[31m\\u001b[32m1\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\"1\"\\u001b[0m"
-        p-mess "\\n|START|\"1\"\\n|DIFF1|\"11\"\\n|DIFF2|\"1\""
-        e-diff ["11" "1"]]
+       "\\u001b[34m\\n|START|\\u001b[32m\"1\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\"1\\u001b[31m1\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\"1\\u001b[31m\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|  END|\\u001b[32m\"\\u001b[0m"
+        p-mess "\\n|START|\"1\\n|DIFF1|\"11\"\\n|DIFF2|\"1\"\\n|  END|\""
+        e-diff ["1" ""]]
     (let [[d1 d2 c-res p-res e-mess] (are-vars-eq va vb NO-REPL-PRINT)]
       (is (= c-mess c-res))
       (is (= p-mess p-res))
@@ -227,9 +227,9 @@
   (let [va "1"
         vb "11"
         c-mess
-        "\\u001b[34m\\n|START|\\u001b[32m\"1\"\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\"1\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\"1\\u001b[31m\\u001b[32m1\"\\u001b[0m"
-        p-mess "\\n|START|\"1\"\\n|DIFF1|\"1\"\\n|DIFF2|\"11\""
-        e-diff ["1" "11"]]
+"\\u001b[34m\\n|START|\\u001b[32m\"1\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\"1\\u001b[31m\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\"1\\u001b[31m1\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|  END|\\u001b[32m\"\\u001b[0m"
+        p-mess "\\n|START|\"1\\n|DIFF1|\"1\"\\n|DIFF2|\"11\"\\n|  END|\""
+        e-diff ["" "1"]]
     (let [[d1 d2 c-res p-res e-mess] (are-vars-eq va vb NO-REPL-PRINT)]
       (is (= c-mess c-res))
       (is (= p-mess p-res))
@@ -243,9 +243,9 @@
 
 "
         c-mess
-        "\\u001b[34m\\n|DIFF1|\\u001b[31m\"\\u001b[35m\\n\\u001b[31m\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\"\\u001b[35m\\n\\u001b[32m\\u001b[31m\\u001b[32m\\u001b[35m\\n\\u001b[32m\"\\u001b[0m"
+"\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\"\\u001b[35m\\n\\u001b[32m\\u001b[31m\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\"\\u001b[35m\\n\\u001b[32m\\u001b[31m\\u001b[35m\\n\\u001b[31m\\u001b[32m\"\\u001b[0m"
         p-mess "\\n|DIFF1|\"\\n\"\\n|DIFF2|\"\\n\\n\""
-        e-diff ["\n" "\n\n"]]
+        e-diff ["" "\n"]]
     (let [[d1 d2 c-res p-res e-mess] (are-vars-eq va vb NO-REPL-PRINT)]
       (is (= c-mess c-res))
       (is (= p-mess p-res))
@@ -259,9 +259,9 @@
         vb "
 "
         c-mess
-        "\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\"\\u001b[35m\\n\\u001b[32m\\u001b[31m\\u001b[32m\\u001b[35m\\n\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\"\\u001b[35m\\n\\u001b[31m\"\\u001b[0m"
+"\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m\"\\u001b[35m\\n\\u001b[32m\\u001b[31m\\u001b[35m\\n\\u001b[31m\\u001b[32m\"\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m\"\\u001b[35m\\n\\u001b[32m\\u001b[31m\\u001b[32m\"\\u001b[0m"
         p-mess "\\n|DIFF1|\"\\n\\n\"\\n|DIFF2|\"\\n\""
-        e-diff ["\n\n" "\n"]]
+        e-diff ["\n" ""]]
     (let [[d1 d2 c-res p-res e-mess] (are-vars-eq va vb NO-REPL-PRINT)]
       (is (= c-mess c-res))
       (is (= p-mess p-res))
@@ -272,7 +272,7 @@
   (let [va 11
         vb 1
         c-mess
-        "\\u001b[34m\\n|START|\\u001b[32m1\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m1\\u001b[31m\\u001b[32m1\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m1\\u001b[0m"
+"\\u001b[34m\\n|START|\\u001b[32m1\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m1\\u001b[31m1\\u001b[32m\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m1\\u001b[31m\\u001b[32m\\u001b[0m"
         p-mess  "\\n|START|1\\n|DIFF1|11\\n|DIFF2|1"
         e-diff [11 1]]
     (let [[d1 d2 c-res p-res e-mess] (are-vars-eq va vb NO-REPL-PRINT)]
@@ -285,7 +285,7 @@
   (let [va 1
         vb 11
         c-mess
-        "\\u001b[34m\\n|START|\\u001b[32m1\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m1\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m1\\u001b[31m\\u001b[32m1\\u001b[0m"
+"\\u001b[34m\\n|START|\\u001b[32m1\\u001b[0m\\u001b[34m\\n|DIFF1|\\u001b[31m\\u001b[32m1\\u001b[31m\\u001b[32m\\u001b[0m\\u001b[34m\\n|DIFF2|\\u001b[31m\\u001b[32m1\\u001b[31m1\\u001b[32m\\u001b[0m"
         p-mess "\\n|START|1\\n|DIFF1|1\\n|DIFF2|11"
         e-diff [1 11]]
     (let [[d1 d2 c-res p-res e-mess] (are-vars-eq va vb NO-REPL-PRINT)]

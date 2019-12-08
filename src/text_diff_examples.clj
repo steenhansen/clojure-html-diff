@@ -26,7 +26,7 @@
 ;  actual: (not (= "abcdfeghijkl\rmnopqrstuvwxyz" "abcdfeghijkl\nmnopqrstuvwxyz"))
 
   (let [value-1 "11111111111"
-        value-2                 "1111111111l"
+        value-2 "1111111111l"
         [diff-1 diff-2] (are-vars-eq value-1 value-2)]    ; 1 vs l
     (is (= diff-1 diff-2))
     (is (= value-1 value-2)))
