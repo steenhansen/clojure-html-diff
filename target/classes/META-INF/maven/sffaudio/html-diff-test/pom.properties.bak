@@ -1,0 +1,5 @@
+#Leiningen
+#Mon Nov 11 18:28:48 PST 2019
+version=0.1.0-SNAPSHOT
+groupId=sffaudio
+artifactId=html-diff-test

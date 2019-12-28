@@ -19,7 +19,6 @@
 (defn test-pre-duplicate-post [var-a var-b expect-res pre-post-size ellipsis-size]
   (let [[_ _ actual-res] (pre-duplicate-post var-a var-b pre-post-size ellipsis-size T-NO-ANSI-COLORS)]
     (display-if-error var-a var-b actual-res expect-res)
-
     actual-res))
 
 (defn build-test-pre-duplicate-post [relative-data-dir]
@@ -59,6 +58,8 @@
   (is (= (plain-diff-postfix "abc" 3)  "abc"))
   (is (= (plain-diff-postfix "abc" 4)  "abc")))
 
+
+;   (clojure.test/test-vars [#'text-diff-test/tests-text-diff])
 (deftest tests-text-diff []
   (let [test-show-diff (build-test-pre-duplicate-post  "./test/test-data/")]
     (do
@@ -108,6 +109,7 @@
     (test-show-diff 5)
     (test-show-diff 6)
     (test-show-diff 7)
+    (test-show-diff 8)
 ;
     ))
 

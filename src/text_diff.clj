@@ -159,10 +159,11 @@
   (get-middle "1234567890" 3 5)
   ;"45"
   )
-(defn get-middle [str-text start-pos end-pos]
-  (if (or (= end-pos 0) (> start-pos end-pos))
+
+(defn get-middle [str-text start-length end-pos]
+  (if (or (= end-pos 0) (> start-length end-pos))
     ""
-    (subs str-text start-pos end-pos)))
+    (subs str-text start-length end-pos)))
 
 (comment
   (plain-difference "123edfg" "987edfg" "abcd" "edfg")
